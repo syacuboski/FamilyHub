@@ -7,7 +7,7 @@ import { addMissingForRecipe, addToList, completeTask, defaultList } from '../..
 import { needsFor } from '../../lib/missing';
 import { daysBetween, fmtHeaderDate, greeting, parseYmd, today, ymd } from '../../lib/dates';
 import { portionsFor, caloriesFrom } from '../../lib/scale';
-import { MoonHero } from '../../theme/art/Art';
+import { HeroArt } from '../../theme/art/Art';
 import { IconGear } from '../../shared/Icons';
 import { Screen, useMembers, useToast } from '../../shared/ui';
 import { useAgenda } from '../calendar/useAgenda';
@@ -78,7 +78,7 @@ export function Today() {
 
   return (
     <Screen
-      art={<MoonHero />}
+      art={<HeroArt />}
       header={
         <div className="today-head">
           <div className="header-row">

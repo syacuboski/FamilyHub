@@ -1,5 +1,5 @@
 /* Starlight design tokens, lifted from the Family Hub mockups.
-   Night Court (after sunset) is the default; Day Court is the light theme. */
+   Dark ("night") is the default after sunset; Light ("day") after sunrise. */
 
 :root,
 [data-theme='night'] {

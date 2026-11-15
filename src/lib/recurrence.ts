@@ -82,7 +82,8 @@ export function occursOn(due: string, rrule: string, day: Date): boolean {
   if (!rrule) return due === ymd(day);
   try {
     const rule = ruleFor(rrule, parseYmd(due));
-    const hits = rule.between(toFloating(startOfDay(day)), toFloating(addDays(startOfDay(day), 1)), true);
+    // end is exclusive: the next midnight belongs to the next day
+    const hits = rule.between(toFloating(startOfDay(day)), new Date(toFloating(addDays(startOfDay(day), 1)).getTime() - 1), true);
     return hits.length > 0 && parseYmd(due) <= day;
   } catch {
     return false;

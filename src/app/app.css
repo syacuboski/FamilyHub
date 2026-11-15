@@ -91,7 +91,7 @@
 .fab {
   position: absolute;
   right: 20px;
-  bottom: calc(var(--nav-h) + 22px);
+  bottom: 20px; /* .screen ends at the nav bar, so this matches the 20px side gap */
   width: 58px;
   height: 58px;
   border-radius: 50%;

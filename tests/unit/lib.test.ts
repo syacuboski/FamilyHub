@@ -79,6 +79,9 @@ describe('recurrence', () => {
     expect(occursOn('2026-10-27', 'FREQ=WEEKLY', new Date(2026, 10, 3))).toBe(true);
     expect(occursOn('2026-10-27', 'FREQ=WEEKLY', new Date(2026, 10, 4))).toBe(false);
     expect(occursOn('2026-10-27', '', new Date(2026, 9, 27))).toBe(true);
+    // a Sunday chore must not show on the Saturday before (midnight belongs to Sunday)
+    expect(occursOn('2026-11-15', 'FREQ=WEEKLY', new Date(2026, 10, 21))).toBe(false);
+    expect(occursOn('2026-11-15', 'FREQ=WEEKLY', new Date(2026, 10, 22))).toBe(true);
   });
   it('describes rules in plain words', () => {
     expect(describeRule('FREQ=WEEKLY', new Date(2026, 9, 27))).toBe('Every Tuesday');
@@ -112,7 +115,26 @@ describe('quick add parsing', () => {
     const d = parseEventText('Flu shots Nov 3', now);
     expect(d.title).toBe('Flu shots');
     expect(d.date && ymd(d.date)).toBe('2026-11-03');
-    expect(parseEventText('Call plumber', now)).toEqual({ title: 'Call plumber', date: null, time: null });
+    expect(parseEventText('Call plumber', now)).toEqual({ title: 'Call plumber', date: null, time: null, end: null });
+  });
+  it('reads time ranges', () => {
+    const now = new Date(2026, 9, 27, 10);
+    expect(parseEventText('Soccer Sat 4 to 6pm', now)).toMatchObject({ title: 'Soccer', time: '16:00', end: '18:00' });
+    expect(parseEventText('Party from 4-6 Sat', now)).toMatchObject({ title: 'Party', time: '16:00', end: '18:00' });
+    expect(parseEventText('Swim Thu 5:30–6:15pm', now)).toMatchObject({ title: 'Swim', time: '17:30', end: '18:15' });
+    expect(parseEventText('Brunch 11 to 1pm Sun', now)).toMatchObject({ title: 'Brunch', time: '11:00', end: '13:00' });
+    expect(parseEventText('Work 9am-5pm tomorrow', now)).toMatchObject({ title: 'Work', time: '09:00', end: '17:00' });
+    expect(parseEventText('Game at 7 to 9 Fri', now)).toMatchObject({ title: 'Game', time: '19:00', end: '21:00' });
+  });
+  it('reads who it is for', () => {
+    const now = new Date(2026, 9, 27, 10);
+    const people = [{ id: 'm', name: 'Mom' }, { id: 'd', name: 'Dad' }];
+    expect(parseEventText('Mom dentist Fri 3pm', now, people)).toMatchObject({ title: 'Dentist', owner: 'm', time: '15:00' });
+    expect(parseEventText('Haircut for Dad Sat 10am', now, people)).toMatchObject({ title: 'Haircut', owner: 'd' });
+    expect(parseEventText('Lunch with Mom Fri noon', now, people)).toMatchObject({ title: 'Lunch with Mom', owner: 'm' });
+    expect(parseEventText('Pumpkin patch family Sat 10 to 12', now, people)).toMatchObject({ title: 'Pumpkin patch', owner: '', time: '10:00', end: '12:00' });
+    expect(parseEventText('Dentist Fri 3pm', now, people).owner).toBeUndefined();
+    expect(parseEventText('Momentum class Fri 3pm', now, people).owner).toBeUndefined();
   });
   it('reads pasted ingredient lines', () => {
     expect(parseIngredientLine('2 lb beef chuck, cubed')).toEqual({ qty: 2, unit: 'lb', name: 'Beef chuck', prep: 'cubed' });

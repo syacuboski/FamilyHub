@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { MoonHero } from '../../theme/art/Art';
+import { HeroArt } from '../../theme/art/Art';
 import { signIn } from '../../lib/pb';
 
 export function Login({ onSignedOut }: { onSignedOut: () => Promise<void> | void }) {
@@ -31,7 +31,7 @@ export function Login({ onSignedOut }: { onSignedOut: () => Promise<void> | void
 
   return (
     <div className="screen">
-      <MoonHero />
+      <HeroArt />
       <header className="screen-header" style={{ paddingTop: 'calc(140px + var(--safe-top))' }}>
         <p className="eyebrow">Family Hub</p>
         <h1 className="display" style={{ fontSize: 38 }}>Welcome home</h1>

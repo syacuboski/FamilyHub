@@ -93,9 +93,9 @@ export function Settings() {
 
       <section className="glass card" style={{ gap: 12 }}>
         <h2 className="label">Look</h2>
-        <ChipGroup<ThemeMode> label="Theme" value={mode} onChange={setMode} options={[{ value: 'auto', label: 'Auto' }, { value: 'night', label: 'Night Court' }, { value: 'day', label: 'Day Court' }]} />
+        <ChipGroup<ThemeMode> label="Theme" value={mode} onChange={setMode} options={[{ value: 'auto', label: 'Auto' }, { value: 'day', label: 'Light' }, { value: 'night', label: 'Dark' }]} />
         <p className="small muted" style={{ margin: 0 }}>
-          Auto switches to Night Court after sunset and Day Court after sunrise
+          Auto switches to Dark after sunset and Light after sunrise
           {sun ? ' for your area.' : ', using 7 AM and 7 PM until you share your location.'}
         </p>
         {mode === 'auto' && (

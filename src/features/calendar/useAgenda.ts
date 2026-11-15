@@ -78,7 +78,7 @@ export function useAgenda(from: Date, days: number) {
             key: `task:${t.id}:${ymd(day)}`,
             kind: 'task',
             title: t.title,
-            sub: [members.name(t.assignee, 'Anyone'), t.rrule ? describeRule(t.rrule, parseYmd(t.due)).toLowerCase() : t.due_time ? '' : 'due today'].filter(Boolean).join(' · '),
+            sub: [members.name(t.assignee, 'Anyone'), t.rrule ? describeRule(t.rrule, parseYmd(t.due)) : t.due_time ? '' : 'due today'].filter(Boolean).join(' · '),
             time: t.due_time ? fmtTime(new Date(`2000-01-01T${t.due_time}`)) : 'Task',
             timeBlock: 'Task',
             sort: t.due_time ? Number(t.due_time.slice(0, 2)) * 60 + Number(t.due_time.slice(3)) : 24 * 60,

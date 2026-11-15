@@ -1,4 +1,4 @@
-// Theme: Night Court after sunset, Day Court after sunrise (Auto), or a fixed
+// Theme: Dark after sunset, Light after sunrise (Auto), or a fixed
 // choice. Stored per device. Auto uses sunrise/sunset for the location the user
 // shares once in Settings; without it, 7 AM / 7 PM.
 import { useEffect, useState } from 'react';

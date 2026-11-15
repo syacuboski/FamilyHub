@@ -1,12 +1,13 @@
-// Original Starlight line art from the mockups: crescent moon with orbit rings,
-// a thorny vine and four-point stars. Purely decorative (aria-hidden).
+// Original Starlight line art from the mockups: a crescent moon (Dark theme) or
+// a sun (Light theme) with orbit rings, a thorny vine and four-point stars.
+// Purely decorative (aria-hidden).
+import { useTheme } from '../theme';
 
 const Star = ({ x, y, s = 1 }: { x: number; y: number; s?: number }) => (
   <path transform={`translate(${x} ${y}) scale(${s})`} d="M0 -7 L1.5 -1.5 L7 0 L1.5 1.5 L0 7 L-1.5 1.5 L-7 0 L-1.5 -1.5Z" />
 );
 
-/** Large header art for the Today screen. */
-export function MoonHero() {
+function NightHero() {
   return (
     <svg className="art art-hero" width="230" height="210" viewBox="0 0 230 210" aria-hidden="true">
       <circle cx="162" cy="68" r="54" fill="none" stroke="var(--accent)" strokeWidth="1" strokeOpacity="0.35" />
@@ -37,8 +38,7 @@ export function MoonHero() {
   );
 }
 
-/** Small corner art used on every other screen. */
-export function MoonCorner() {
+function NightCorner() {
   return (
     <svg className="art art-corner" width="150" height="130" viewBox="0 0 150 130" aria-hidden="true">
       <circle cx="104" cy="46" r="40" fill="none" stroke="var(--accent)" strokeWidth="0.8" strokeOpacity="0.18" strokeDasharray="2 6" />
@@ -78,4 +78,72 @@ export function EclipseGlow() {
       </g>
     </svg>
   );
+}
+
+/** Sun rays around (cx, cy): alternating long and short strokes. */
+const Rays = ({ cx, cy, r, long, short, n = 12, w = 1.4 }: { cx: number; cy: number; r: number; long: number; short: number; n?: number; w?: number }) => (
+  <g stroke="var(--accent)" strokeWidth={w} strokeLinecap="round">
+    {Array.from({ length: n }, (_, i) => {
+      const a = (i / n) * Math.PI * 2;
+      const len = i % 2 ? short : long;
+      return <line key={i} x1={cx + Math.cos(a) * r} y1={cy + Math.sin(a) * r} x2={cx + Math.cos(a) * (r + len)} y2={cy + Math.sin(a) * (r + len)} />;
+    })}
+  </g>
+);
+
+function DayHero() {
+  return (
+    <svg className="art art-hero" width="230" height="210" viewBox="0 0 230 210" aria-hidden="true">
+      <circle cx="162" cy="68" r="64" fill="none" stroke="var(--accent)" strokeWidth="0.8" strokeOpacity="0.25" strokeDasharray="2 6" />
+      <circle cx="162" cy="68" r="30" fill="var(--accent)" />
+      <circle cx="162" cy="68" r="36" fill="none" stroke="var(--accent)" strokeWidth="1" strokeOpacity="0.45" />
+      <Rays cx={162} cy={68} r={42} long={14} short={7} n={16} />
+      <path d="M30 96 L60 40 L104 82 L82 132" fill="none" stroke="var(--accent)" strokeWidth="0.8" strokeOpacity="0.35" />
+      <g fill="none" stroke="var(--accent)" strokeWidth="1.2" strokeLinecap="round">
+        <path d="M234 112 C 204 120, 186 150, 150 166 S 96 184, 70 214" />
+        <path d="M206 122 l11 -6 -3 11" />
+        <path d="M178 148 l12 1 -9 8" />
+        <path d="M132 172 l1 -12 8 8" />
+        <path d="M98 190 l-11 -3 9 -7" />
+        <path d="M190 134 q16 -12 28 -2 q-14 12 -28 2z" />
+      </g>
+      <g fill="var(--accent)">
+        <Star x={60} y={40} s={0.8} />
+        <Star x={104} y={82} s={0.5} />
+        <Star x={214} y={150} s={0.6} />
+        <circle cx="30" cy="96" r="1.6" />
+        <circle cx="82" cy="132" r="1.4" />
+      </g>
+    </svg>
+  );
+}
+
+function DayCorner() {
+  return (
+    <svg className="art art-corner" width="150" height="130" viewBox="0 0 150 130" aria-hidden="true">
+      <circle cx="104" cy="46" r="40" fill="none" stroke="var(--accent)" strokeWidth="0.8" strokeOpacity="0.2" strokeDasharray="2 6" />
+      <circle cx="104" cy="46" r="17" fill="var(--accent)" />
+      <Rays cx={104} cy={46} r={23} long={9} short={5} n={12} w={1.2} />
+      <g fill="none" stroke="var(--accent)" strokeWidth="1.1" strokeLinecap="round">
+        <path d="M152 80 C 132 86, 118 104, 92 112 S 62 122, 50 134" />
+        <path d="M134 86 l9 -5 -2 10" />
+        <path d="M106 106 l10 0 -7 7" />
+      </g>
+      <g fill="var(--accent)">
+        <Star x={40} y={30} s={0.7} />
+        <circle cx="18" cy="60" r="1.3" />
+        <circle cx="64" cy="76" r="1.1" />
+      </g>
+    </svg>
+  );
+}
+
+/** Large header art (Today, sign-in): a moon in Dark, a sun in Light. */
+export function HeroArt() {
+  return useTheme().theme === 'day' ? <DayHero /> : <NightHero />;
+}
+
+/** Small corner art used on every other screen: a moon in Dark, a sun in Light. */
+export function CornerArt() {
+  return useTheme().theme === 'day' ? <DayCorner /> : <NightCorner />;
 }

@@ -19,18 +19,21 @@ function useSelected() {
   return { sel, who, set, qs: params.toString() };
 }
 
-function Header({ title, view, qs }: { title: string; view: 'week' | 'month'; qs: string }) {
+function Header({ title, view, qs, day }: { title: string; view: 'week' | 'month'; qs: string; day: Date }) {
   return (
+    <>
+    <div className="header-row">
+      <p className="eyebrow">Calendar</p>
+      <Link to={`/calendar/new?date=${ymd(day)}`} className="btn btn-primary btn-sm">+ New event</Link>
+    </div>
     <div className="header-row end">
-      <div className="stack" style={{ gap: 4 }}>
-        <p className="eyebrow">Calendar</p>
-        <h1 className="display h1">{title}</h1>
-      </div>
+      <h1 className="display h1">{title}</h1>
       <div className="seg glass" style={{ flex: '0 0 auto' }}>
         <Link to={`/calendar?${qs}`} aria-current={view === 'week' ? 'page' : undefined} replace>Week</Link>
         <Link to={`/calendar/month?${qs}`} aria-current={view === 'month' ? 'page' : undefined} replace>Month</Link>
       </div>
     </div>
+    </>
   );
 }
 
@@ -67,7 +70,7 @@ export function CalendarWeek() {
     <Screen
       header={
         <>
-          <Header title={title} view="week" qs={qs} />
+          <Header title={title} view="week" qs={qs} day={sel} />
           <div className="week-nav">
             <button type="button" className="chip" aria-label="Previous week" onClick={() => set({ d: addDays(sel, -7) })}>‹</button>
             <div className="week-strip" role="group" aria-label={`Week of ${MON_SHORT[weekStart.getMonth()]} ${weekStart.getDate()}`}>
@@ -101,7 +104,6 @@ export function CalendarWeek() {
           <h2 className="display h2">{DOW_LONG[sel.getDay()]}, {MON_SHORT[sel.getMonth()]} {sel.getDate()}</h2>
           {sameDay(sel, t) ? <span className="small" style={{ color: 'var(--accent-hi)' }}>Today</span> : <button type="button" className="link-btn" onClick={() => set({ d: t })}>Today</button>}
         </div>
-        <Link to={`/calendar/new?date=${ymd(sel)}`} className="link-btn">+ Event</Link>
       </div>
       {items.map((it) => (
         <Link key={it.key} to={it.to} className={`agenda-card${it.kind !== 'event' ? ' dashed' : ''}`} style={{ borderLeftColor: it.color }}>
@@ -133,7 +135,7 @@ export function CalendarMonth() {
     <Screen
       header={
         <>
-          <Header title={`${MON_LONG[sel.getMonth()]} ${sel.getFullYear()}`} view="month" qs={qs} />
+          <Header title={`${MON_LONG[sel.getMonth()]} ${sel.getFullYear()}`} view="month" qs={qs} day={sel} />
           <WhoChips who={who} onChange={(w) => set({ who: w })} />
         </>
       }
@@ -171,8 +173,7 @@ export function CalendarMonth() {
             <h2 className="display" style={{ fontSize: 21 }}>{DOW_LONG[sel.getDay()]}, {MON_SHORT[sel.getMonth()]} {sel.getDate()}</h2>
             {sameDay(sel, t) && <span className="small" style={{ color: 'var(--accent-hi)' }}>Today</span>}
           </div>
-          <Link to={`/calendar/new?date=${ymd(sel)}`} className="link-btn">+ Event</Link>
-        </div>
+          </div>
         {agenda.map((it) => (
           <Link key={it.key} to={it.to} className="agenda-line">
             <span className="t">{it.time}</span>

@@ -1,6 +1,6 @@
 // Quick add sheet (mockup: Quick add · night): List item · Task · Event · Meal.
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useLocation, useSearchParams, type Location } from 'react-router';
 import { add, useRecords } from '../../lib/sync';
 import { addMissingForRecipe, addToList } from '../../lib/actions';
 import { parseEventText, parseListItem } from '../../lib/parse';
@@ -18,9 +18,23 @@ const TABS: { value: Kind; label: string; save: string }[] = [
   { value: 'meal', label: 'Meal', save: 'Add to menu' },
 ];
 
+/** Which tab to open on, based on the screen the ✦ button was tapped from. */
+export function kindForPath(path: string): Kind {
+  if (/^\/calendar/.test(path)) return 'event';
+  if (/^\/(home\/tasks|tasks)/.test(path)) return 'task';
+  if (/^\/(meals|recipes)/.test(path)) return 'meal';
+  return 'item';
+}
+
 export function QuickAdd() {
   const [params] = useSearchParams();
-  const [kind, setKind] = useState<Kind>((params.get('type') as Kind) || 'item');
+  const bg = (useLocation().state as { bg?: Location } | null)?.bg;
+  const from = bg?.pathname || '/';
+  const [kind, setKind] = useState<Kind>((params.get('type') as Kind) || kindForPath(from));
+  // context from the screen underneath: the list you're viewing, the calendar day you picked
+  const listMatch = from.match(/^\/lists\/([^/]+)/);
+  const fromList = listMatch && listMatch[1] !== 'manage' ? listMatch[1] : '';
+  const fromDay = new URLSearchParams(bg?.search || '').get('d') || '';
   const close = useGoBack('/');
   const toast = useToast();
 
@@ -56,9 +70,9 @@ export function QuickAdd() {
           </button>
         ))}
       </div>
-      {kind === 'item' && <ItemForm onReady={setSaveFn} />}
+      {kind === 'item' && <ItemForm onReady={setSaveFn} defaultList={fromList} />}
       {kind === 'task' && <TaskForm onReady={setSaveFn} />}
-      {kind === 'event' && <EventForm onReady={setSaveFn} />}
+      {kind === 'event' && <EventForm onReady={setSaveFn} defaultDate={fromDay} />}
       {kind === 'meal' && <MealForm onReady={setSaveFn} />}
     </Sheet>
   );
@@ -73,12 +87,12 @@ function useReady(onReady: Ready, ok: boolean, fn: () => Promise<string | void>,
 }
 
 // ---------- list item ----------
-function ItemForm({ onReady }: { onReady: Ready }) {
+function ItemForm({ onReady, defaultList = '' }: { onReady: Ready; defaultList?: string }) {
   const lists = useRecords('lists');
   const rows = useRecords('list_items');
   const sorted = useMemo(() => (lists || []).slice().sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0)), [lists]);
   const [text, setText] = useState('');
-  const [listId, setListId] = useState('');
+  const [listId, setListId] = useState(defaultList);
   const target = listId || sorted[0]?.id || '';
   const p = text.trim() ? parseListItem(text) : null;
   const recent = useMemo(() => {
@@ -166,18 +180,24 @@ const REMINDERS = [
   { value: '1440', label: '1 day before' },
 ];
 
-function EventForm({ onReady }: { onReady: Ready }) {
+function EventForm({ onReady, defaultDate = '' }: { onReady: Ready; defaultDate?: string }) {
   const members = useMembers();
   const [text, setText] = useState('');
-  const parsed = parseEventText(text);
+  const people = useMemo(() => members.list.map((u) => ({ id: u.id, name: u.name })), [members.list]);
+  const parsed = parseEventText(text, new Date(), people);
+  // Fields the person changed by hand win over what was understood from the text.
   const [startT, setStartT] = useState<string | null>(null);
   const [endT, setEndT] = useState<string | null>(null);
   const [day, setDay] = useState<string | null>(null);
-  const [owner, setOwner] = useState('');
+  const [ownerPick, setOwner] = useState<string | null>(null);
   const [reminder, setReminder] = useState('60');
-  const date = day || (parsed.date ? ymd(parsed.date) : ymd(today()));
+  const date = day || (parsed.date ? ymd(parsed.date) : defaultDate || ymd(today()));
   const start = startT || parsed.time || '';
-  const end = endT || (start ? hhmm(new Date(withTime(new Date(), start).getTime() + 3600e3)) : '');
+  const mins = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
+  // length from the text ("4 to 6pm" = 2 h), else 1 hour; moving the start keeps the length
+  const lengthMin = parsed.time && parsed.end ? (mins(parsed.end) - mins(parsed.time) + 1440) % 1440 || 60 : 60;
+  const end = endT || (start ? hhmm(new Date(withTime(new Date(), start).getTime() + lengthMin * 60e3)) : '');
+  const owner = ownerPick ?? parsed.owner ?? '';
   const allDay = !start;
 
   useReady(onReady, !!parsed.title, async () => {
@@ -199,7 +219,7 @@ function EventForm({ onReady }: { onReady: Ready }) {
       </label>
       {parsed.title && (
         <p className="small" style={{ margin: 0, color: 'var(--teal)' }}>
-          Understood: {parsed.title} · {fmtShortDate(new Date(date + 'T00:00'))} · {allDay ? 'all day' : `${fmt12(start)}–${fmt12(end)}`}
+          Understood: {parsed.title} · {fmtShortDate(new Date(date + 'T00:00'))} · {allDay ? 'all day' : `${fmt12(start)}–${fmt12(end)}`} · {members.name(owner, 'Family')}
         </p>
       )}
       <label className="field">
@@ -207,7 +227,15 @@ function EventForm({ onReady }: { onReady: Ready }) {
         <input type="date" value={date} onChange={(e) => setDay(e.target.value)} />
       </label>
       <div className="field-row">
-        <label className="field">Starts<input type="time" value={start} onChange={(e) => setStartT(e.target.value)} /></label>
+        <label className="field">Starts<input type="time" value={start} onChange={(e) => {
+          const v = e.target.value;
+          // keep the event's length when the start moves
+          if (endT && start && v) {
+            const shifted = (mins(endT) + mins(v) - mins(start) + 1440) % 1440;
+            setEndT(`${String(Math.floor(shifted / 60)).padStart(2, '0')}:${String(shifted % 60).padStart(2, '0')}`);
+          }
+          setStartT(v);
+        }} /></label>
         <label className="field">Ends<input type="time" value={end} onChange={(e) => setEndT(e.target.value)} /></label>
       </div>
       <div className="field">

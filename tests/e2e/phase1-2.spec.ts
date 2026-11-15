@@ -132,23 +132,31 @@ test('quick add understands “Milk 2 gal” and plain-language events', async (
   await page.goto('/lists');
   await expect(page.locator('.list-row', { hasText: 'Oat milk' })).toContainText('2 gal');
 
-  await page.getByRole('link', { name: 'Quick add' }).click();
-  await page.getByRole('tab', { name: 'Event' }).click();
-  await page.getByLabel('Event').fill('Flu shots tomorrow at 10am');
-  await expect(page.getByText(/Understood: Flu shots · .* · 10:00 AM–11:00 AM/)).toBeVisible();
-  await page.getByRole('button', { name: 'Add to calendar' }).click();
-  await expect(page.locator('.toast')).toContainText('Added Flu shots');
+  // from the Calendar, Quick add opens on Event and understands a range and a name
   const t = new Date();
   t.setDate(t.getDate() + 1);
-  await page.goto(`/calendar?d=${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`);
-  await expect(page.getByText('Flu shots')).toBeVisible();
+  const day = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+  await page.goto(`/calendar?d=${day}`);
+  await page.getByRole('link', { name: 'Quick add' }).click();
+  await expect(page.getByRole('tab', { name: 'Event' })).toHaveAttribute('aria-selected', 'true');
+  await page.getByLabel('Event').fill('Flu shots for Mom tomorrow 4 to 6pm');
+  await expect(page.getByText(/Understood: Flu shots · .* · 4:00 PM–6:00 PM · Mom/)).toBeVisible();
+  await page.getByRole('dialog').getByRole('button', { name: 'Dad' }).click();
+  await expect(page.getByText(/· Dad$/)).toBeVisible();
+  await page.getByRole('button', { name: 'Add to calendar' }).click();
+  await expect(page.locator('.toast')).toContainText('Added Flu shots');
+  await page.goto(`/calendar?d=${day}`);
+  const card = page.locator('.agenda-card', { hasText: 'Flu shots' });
+  await expect(card).toContainText('4:00');
+  await expect(card).toContainText('6:00');
+  await expect(card).toContainText('Dad');
 });
 
-test('theme can be switched to Night Court', async ({ page }) => {
+test('theme can be switched to Dark and Light', async ({ page }) => {
   await signIn(page);
   await page.goto('/settings');
-  await page.getByRole('button', { name: 'Night Court' }).click();
+  await page.getByRole('button', { name: 'Dark', exact: true }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'night');
-  await page.getByRole('button', { name: 'Day Court' }).click();
+  await page.getByRole('button', { name: 'Light', exact: true }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'day');
 });

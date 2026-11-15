@@ -1,7 +1,7 @@
 // Small shared building blocks used by every screen.
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
-import { MoonCorner } from '../theme/art/Art';
+import { CornerArt } from '../theme/art/Art';
 import { IconBack, IconSpark } from './Icons';
 import { useRecords, useSyncStatus } from '../lib/sync';
 import { currentUser } from '../lib/pb';
@@ -11,7 +11,7 @@ import type { User } from '../lib/types';
 export function Screen({
   header,
   children,
-  art = <MoonCorner />,
+  art = <CornerArt />,
   fab = true,
   compact = false,
   mainClass = '',

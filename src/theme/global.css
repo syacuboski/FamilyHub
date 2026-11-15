@@ -301,7 +301,7 @@ select.input,
 .toast {
   position: fixed;
   left: 50%;
-  bottom: calc(var(--nav-h) + 24px);
+  bottom: calc(var(--nav-h) + 90px);
   transform: translateX(-50%);
   z-index: 60;
   max-width: min(360px, calc(100vw - 32px));

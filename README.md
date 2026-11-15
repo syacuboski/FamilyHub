@@ -2,7 +2,7 @@
 
 A private planner for our household: **calendar, shopping lists, weekly menu, recipes, tasks and home inventory** in one installable phone app. It runs entirely on the home server, is reachable only over Tailscale, and keeps working in a store with no signal.
 
-- **Look:** "Starlight". Night Court (midnight blue and gold) after sunset, Day Court (cream and gold) after sunrise, or pick one in Settings.
+- **Look:** "Starlight". **Dark** (midnight blue and gold, with a moon) after sunset, **Light** (cream and gold, with a sun) after sunrise, or pick one in Settings.
 - **Stack:** React + TypeScript PWA on [PocketBase](https://pocketbase.io) (one binary: database, sign-in, realtime, file storage, backups).
 - **Planning docs:** *Family Hub App — Plan* (feature spec and roadmap) and *Family Hub — Mockups* (every screen, night and day). Server operations live in the *Home Server SOP → Family Hub* tab.
 
@@ -33,7 +33,7 @@ A private planner for our household: **calendar, shopping lists, weekly menu, re
 | **Calendar** | Week and month views with each person's color, filter by person, repeating events (daily, weekdays, weekly, every 2 weeks, monthly, every 3 months, yearly), skip one date of a repeat, reminders, location, notes. Dated tasks and planned dinners show too. | Phase 2 ✓ |
 | **Lists** | Several lists (Grocery, Costco, Hardware…), grouped by category, live check-off between phones, "Milk 2 gal" understood, offline. **Shopping trip** mode with big tap targets that learns your store's aisle order; finishing a trip restocks Inventory. | Phase 1 ✓ |
 | **Tasks** | One-off and repeating chores, who it's for, due date and time, reminders. Ticking a repeating chore rolls it to its next date (with Undo). | Phase 1 ✓ |
-| **Quick add** (✦ button) | Add a list item, task, event ("Dentist Fri 3pm") or meal from any screen. | Phase 1–2 ✓ |
+| **Quick add** (✦ button) | Add a list item, task, event or meal from any screen. It opens on what fits the screen you are on (Calendar → event, Tasks → task, Meals → meal, a list → that list). Events understand plain words: "Soccer for Mom Sat 4 to 6pm" fills in the day, 4:00–6:00 PM and Mom. | Phase 1–2 ✓ |
 | **Recipes + Meals** | Cookbook, recipe entry with photo, adult/kid portion scaler, meal prep portions, cook mode, prep labels, weekly menu, "add missing ingredients to Grocery". | Phase 3, next |
 | **Inventory** | Pantry, fridge, freezer and kids' supplies, low-stock alerts, reconcile counts, diaper bag checklist. | Phase 4 |
 
@@ -327,4 +327,5 @@ Integration tests need `npm run pb` running with the sample data (section 3). E2
 
 | Date | Version | Change |
 |---|---|---|
+| 2026-11-15 | 0.1.1 | From first test: ✦ button evenly spaced; Quick add opens on the current screen's type; themes renamed Light/Dark with a sun in Light; "+ New event" button on Calendar; events understand time ranges ("4 to 6pm") and names; fixed weekly chores showing a day early. |
 | 2026-11-15 | 0.1.0 | Phases 1–2: sign-in, offline sync, Lists + shopping trip, Tasks, Quick add, Calendar + event editor, Today, Settings, Cozi/.ics import, push reminders, deploy and setup scripts. |
