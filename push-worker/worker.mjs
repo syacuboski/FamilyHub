@@ -39,7 +39,8 @@ const PB_URL = env('PB_URL', 'http://127.0.0.1:8090');
 const WINDOW_MS = 5 * 60 * 1000; // send reminders up to 5 min late (missed ticks), never older
 const DEFAULT_TASK_TIME = '09:00';
 
-webpush.setVapidDetails(env('VAPID_SUBJECT', 'https://familyhub.invalid'), env('VAPID_PUBLIC_KEY'), env('VAPID_PRIVATE_KEY'));
+// Apple requires a real contact here (mailto: or https:), or it answers 403.
+webpush.setVapidDetails(env('VAPID_SUBJECT'), env('VAPID_PUBLIC_KEY'), env('VAPID_PRIVATE_KEY'));
 
 const pb = new PocketBase(PB_URL);
 pb.autoCancellation(false);
@@ -88,7 +89,9 @@ async function send(subs, payload) {
         console.log(`[push] removing expired subscription ${s.id}`);
         await pb.collection('push_subscriptions').delete(s.id).catch(() => {});
       } else {
-        console.warn(`[push] send failed (${e.statusCode || e.message})`);
+        const host = (() => { try { return new URL(s.endpoint).host; } catch { return 'push service'; } })();
+        console.warn(`[push] ${host} refused (${e.statusCode || e.message})${e.body ? `: ${String(e.body).slice(0, 200)}` : ''}`);
+        if (e.statusCode === 403 && /apple/.test(host)) console.warn('[push] Apple rejects the sender ID when VAPID_SUBJECT is not a real mailto: address or https: site (README → Push reminders).');
       }
     }
   }
@@ -184,8 +187,13 @@ if (args[0] === '--test') {
     console.error('Usage: node worker.mjs --test <email of a family member>');
     process.exit(1);
   }
-  const n = await send(await subsFor(user.household, user.id), { title: 'Family Hub', body: 'Test reminder: notifications work on this phone.', url: '/' });
-  console.log(n ? `Sent to ${n} device(s).` : `No devices for ${email}. Turn on reminders in Settings on their phone first.`);
+  const devices = await subsFor(user.household, user.id);
+  if (!devices.length) {
+    console.log(`No devices for ${email}. Turn on reminders in Settings on their phone first.`);
+    process.exit(0);
+  }
+  const n = await send(devices, { title: 'Family Hub', body: 'Test reminder: notifications work on this phone.', url: '/' });
+  console.log(n === devices.length ? `Sent to ${n} device(s).` : `Sent to ${n} of ${devices.length} device(s); see the refusal above.`);
   process.exit(0);
 }
 

@@ -242,7 +242,9 @@ The app stays signed in for 30 days between opens. Each open renews that, so in 
 - at **9:00 AM** sends one "use it up" note per household listing food that expires today or tomorrow;
 - removes phone subscriptions that have expired.
 
-Settings are in `/opt/pocketbase/.env.push` (created by `server-setup.sh`): `PB_URL`, `PB_SUPERUSER_EMAIL`, `PB_SUPERUSER_PASSWORD`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`. Times use `TZ=America/New_York` (set in the service file).
+Settings are in `/opt/pocketbase/.env.push` (created by `server-setup.sh`): `PB_URL`, `PB_SUPERUSER_EMAIL`, `PB_SUPERUSER_PASSWORD`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`.
+
+**`VAPID_SUBJECT` must be a real contact** — `mailto:you@example.com` or `https://a-site-you-own` — or **Apple refuses every iPhone reminder with a 403** (Android doesn't check). It's sent to Apple and Google with each push so they can reach the sender about problems; nothing else. Times use `TZ=America/New_York` (set in the service file).
 
 Check it and send a test:
 ```bash
@@ -313,6 +315,7 @@ Integration tests need `npm run pb` running with the sample data (section 3). E2
 | "Can't reach Family Hub" on sign-in | `tailscale serve status`, `systemctl status pocketbase` | `sudo tailscale serve --bg 8090`; `sudo systemctl restart pocketbase` |
 | "Offline · N changes waiting" won't clear | Phone has signal and Tailscale? | Open Settings → Sync now. Refused changes show a message there. |
 | Other phone's changes don't appear | Pull down / reopen the app | The app re-downloads on open and after reconnects; check `journalctl -u pocketbase` |
+| iPhone reminders fail with 403 | `journalctl -u familyhub-push` shows `web.push.apple.com refused (403)` | Set a real `VAPID_SUBJECT` (section 8), then `sudo systemctl restart familyhub-push` |
 | No reminders | Settings → Reminders says "On"? `journalctl -u familyhub-push` | iPhone: must be opened from the Home Screen icon. Send a test (section 8). |
 | Reminders "not set up on the server yet" | `.env.push` has `VAPID_PUBLIC_KEY`? | Run `deploy.sh` again (the key is built into the app) |
 | Old version still showing | — | Tap **Reload** on the "new version" banner, or close and reopen the app |

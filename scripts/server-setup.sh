@@ -49,6 +49,12 @@ else
   PUSH_PASS="$(openssl rand -base64 33 | tr -d '/+=' | cut -c1-40)"
   "$PB_DIR/pocketbase" superuser upsert "$PUSH_EMAIL" "$PUSH_PASS" --dir="$PB_DIR/pb_data" >/dev/null
   KEYS="$(node push-worker/worker.mjs --keys)"
+  echo "    Apple (iPhone) only delivers reminders when they carry a real contact:"
+  echo "    an email address you check, or a website you own. It's sent to Apple"
+  echo "    and Google with each reminder; they use it only to reach you about problems."
+  CONTACT=""
+  while [ -z "$CONTACT" ]; do read -r -p "    Contact email or https:// website: " CONTACT; done
+  case "$CONTACT" in http*|mailto:*) ;; *) CONTACT="mailto:$CONTACT";; esac
   umask 077
   cat > "$ENV_FILE" <<EOF
 # Family Hub push worker settings. Keep private (chmod 600).
@@ -56,7 +62,7 @@ PB_URL=http://127.0.0.1:8090
 PB_SUPERUSER_EMAIL=$PUSH_EMAIL
 PB_SUPERUSER_PASSWORD=$PUSH_PASS
 $KEYS
-VAPID_SUBJECT=https://familyhub.invalid
+VAPID_SUBJECT=$CONTACT
 EOF
   chmod 600 "$ENV_FILE"
   unset PUSH_PASS KEYS
