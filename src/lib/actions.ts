@@ -7,7 +7,7 @@ import { guessCategory, guessLocation } from './categories';
 import { nextDue } from './recurrence';
 import { toPB, ymd, today } from './dates';
 import type { InventoryRec, Item, List, ListItem, Location, Store, Task } from './types';
-import { additionsFor, needsFor, type ListAddition } from './missing';
+import { additionsFor, mergeNeeds, needsFor, type ListAddition } from './missing';
 
 const key = (s: string) => s.trim().toLowerCase();
 
@@ -150,4 +150,33 @@ export async function completeTask(t: Task): Promise<{ undo: () => Promise<void>
 
 export async function reopenTask(t: Task) {
   await patch('tasks', t.id, { done: false, done_at: '' });
+}
+
+/**
+ * Menu → Grocery for a set of planned meals (e.g. the rest of this week):
+ * scale each recipe to its headcount + prep, combine, skip what's in stock or
+ * already on the list. Returns how many items were added.
+ */
+export async function addMealsToGrocery(entries: import('./types').MenuEntry[]): Promise<{ added: number; meals: number }> {
+  const list = await defaultList();
+  if (!list) return { added: 0, meals: 0 };
+  const inv = await db.t('inventory').toArray();
+  const ingsAll = await db.t('recipe_ingredients').toArray();
+  const recipes = await db.t('recipes').toArray();
+  const per: ReturnType<typeof needsFor>[] = [];
+  let meals = 0;
+  for (const e of entries) {
+    const r = recipes.find((x) => x.id === e.recipe);
+    if (!r) continue;
+    const kid = r.kid_portion ?? 0.5;
+    const total = (e.adults ?? 2) + (e.kids ?? 0) * kid + (e.prep_adult || 0) + (e.prep_kid || 0) * kid;
+    if (total <= 0) continue;
+    per.push(needsFor(ingsAll.filter((i) => i.recipe === r.id), r.servings ? total / r.servings : 1, inv));
+    meals++;
+  }
+  const rows = await db.t('list_items').filter((r) => r.list === list.id).toArray();
+
+  const adds = additionsFor(mergeNeeds(per), rows);
+  await addAdditions(list.id, adds, 'This week\'s menu');
+  return { added: adds.length, meals };
 }

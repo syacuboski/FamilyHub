@@ -1,0 +1,23 @@
+/* Meal prep labels: only the label sheet prints. */
+.print-sheet { display: none; }
+
+@media print {
+  html, body, #root, .app { height: auto !important; overflow: visible !important; background: #fff !important; }
+  body * { visibility: hidden; }
+  .print-sheet, .print-sheet * { visibility: visible; }
+  .no-print, .bottom-nav, .art, .toast { display: none !important; }
+  .print-sheet { display: block; position: absolute; left: 0; top: 0; width: 100%; color: #000; }
+  .print-sheet .label-preview { box-shadow: none; border-radius: 0; background: #fff; color: #000; break-inside: avoid; overflow: hidden; }
+
+  /* label printers: one label per page */
+  .print-4x2 .label-preview { width: 4in; height: 2in; padding: 0.14in 0.18in; page-break-after: always; }
+  .print-3x2 .label-preview { width: 3in; height: 2in; padding: 0.12in 0.14in; page-break-after: always; }
+  .print-3x2 .lname { font-size: 15px; }
+
+  /* Avery 5160: 3 × 10 labels of 2.625 × 1 in on letter paper */
+  .print-5160 { display: grid !important; grid-template-columns: repeat(3, 2.625in); grid-auto-rows: 1in; column-gap: 0.125in; }
+  .print-5160 .label-preview { width: 2.625in; height: 1in; padding: 0.06in 0.1in; gap: 1px; }
+  .print-5160 .lname { font-size: 11px; }
+  .print-5160 .lrow, .print-5160 .lmac, .print-5160 .lnote { font-size: 8px; }
+  .print-5160 .lmac { padding-top: 1px; }
+}

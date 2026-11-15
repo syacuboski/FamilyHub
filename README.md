@@ -34,8 +34,9 @@ A private planner for our household: **calendar, shopping lists, weekly menu, re
 | **Lists** | Several lists (Grocery, Costco, Hardware…), grouped by category, live check-off between phones, "Milk 2 gal" understood, offline. **Shopping trip** mode with big tap targets that learns your store's aisle order; finishing a trip restocks Inventory. | Phase 1 ✓ |
 | **Tasks** | One-off and repeating chores, who it's for, due date and time, reminders. Ticking a repeating chore rolls it to its next date (with Undo). | Phase 1 ✓ |
 | **Quick add** (✦ button) | Add a list item, task, event or meal from any screen. It opens on what fits the screen you are on (Calendar → event, Tasks → task, Meals → meal, a list → that list). Events understand plain words: "Soccer for Mom Sat 4 to 6pm" fills in the day, 4:00–6:00 PM and Mom. | Phase 1–2 ✓ |
-| **Recipes** | **Our Cookbook**: search by name or ingredient, category filters you can reorder and hide. **Recipe entry**: photo (shrunk on the phone before upload), portions, prep/cook time, kid portion size, tags (add your own), ingredients (paste a whole list and each line becomes a row; text after a comma is the prep note), steps with optional timers, calories calculated from protein/carbs/fat. | Phase 3 · entry ✓ (Checkpoint B) |
-| **Meals** | Portion scaler (adults + kids + meal prep), cook mode, prep labels, weekly menu, "add missing ingredients to Grocery". | Phase 3, after Checkpoint B |
+| **Recipes** | **Our Cookbook**: search by name or ingredient, category filters you can reorder and hide. **Recipe entry**: photo (shrunk on the phone before upload), portions, prep/cook time, kid portion size, tags (add your own), ingredients (paste a whole list and each line becomes a row; text after a comma is the prep note), steps with optional timers, calories calculated from protein/carbs/fat. | Phase 3 ✓ |
+| **Recipe page** | **Portion scaler**: adults + kids tonight (a kid portion is the recipe's fraction of an adult one) plus extra meal prep portions; every ingredient scales and shows In stock / On list / Need; "Add N missing items to Grocery". **Cook mode**: keeps the screen on, scaled mise-en-place checklist that highlights what the current step uses, swipe between steps, real countdown timers that chime and vibrate (several can run at once). **Meal prep labels**: 4×2 in, 3×2 in or Avery 5160 sheets; prepped and use-by dates, calories and macros (kid labels scaled), reheat note; prints through the phone's print menu and can add the portions to Freezer inventory. | Phase 3 ✓ |
+| **Meals** | Swipeable day cards for the week (Mon–Sun) with breakfast, lunch and dinner. Tap a slot to plan a recipe, leftovers, eating out or anything else, with headcount and meal prep. **Build grocery list for the week** combines every planned recipe from today on, skipping what's in stock or already listed. Past weeks: **Plan this week again**. | Phase 3 ✓ |
 | **Inventory** | Pantry, fridge, freezer and kids' supplies, low-stock alerts, reconcile counts, diaper bag checklist. | Phase 4 |
 
 **How the modules connect** (the reason this is custom-built):
@@ -122,6 +123,8 @@ Useful commands:
 | `npm run icons` | Re-render app icons from `public/icons/icon.svg` |
 
 **Recipe photos** need a connection: the recipe text saves offline like everything else, but the photo uploads straight to the server. If you're offline the app says so and you can add the photo later.
+
+**Backing up or moving recipes:** `node scripts/recipes-io.mjs export [file] [--title "words"]` saves recipes (with ingredients and photos) to a JSON file; `node scripts/recipes-io.mjs import <file>` loads them into another PocketBase, e.g. from your test database onto the server (`PB_URL=http://127.0.0.1:8090` on the server). It asks for a superuser login and skips recipes that already exist.
 
 **Changing the database schema:** never edit a migration that has already run on the server. Add a new file in `pb_migrations/` (`./.pb/pocketbase migrate create <name> --migrationsDir=pb_migrations` makes one), and test it with `npm run pb`. Deploying applies it automatically.
 
@@ -322,7 +325,7 @@ Integration tests need `npm run pb` running with the sample data (section 3). E2
 
 - **Phase 1: Foundation + Lists + Tasks.** ✓ Built. *Gate:* both of you use it instead of Cozi for two weeks.
 - **Phase 2: Calendar + Today.** ✓ Built. **Checkpoint A:** add, edit and repeat a few real events on your phones. *Gate:* decide whether Google two-way sync is needed.
-- **Phase 3: Recipes + Meals.** Recipe entry and Our Cookbook ✓. **Checkpoint B:** enter one or two real recipes with photos. Then: portion scaler, cook mode, prep labels and the weekly menu.
+- **Phase 3: Recipes + Meals.** ✓ Built. Checkpoint B passed (a real family recipe was entered and is used for testing).
 - **Phase 4: Inventory.** Locations, low stock, reconcile, expiry alerts, diaper bag, shopping → stock.
 - **Phase 5: Expand.** Google Calendar sync, kid accounts, native app (Capacitor) if push on iOS proves unreliable or widgets/barcode scanning are wanted.
 
@@ -330,6 +333,7 @@ Integration tests need `npm run pb` running with the sample data (section 3). E2
 
 | Date | Version | Change |
 |---|---|---|
+| 2026-11-15 | 0.3.0 | Phase 3 complete: portion and meal prep scaler, cook mode with timers, printable prep labels (→ Freezer), weekly Meals menu with "build grocery list for the week"; recipe export/import script. |
 | 2026-11-15 | 0.2.0 | Phase 3 part 1: Our Cookbook (search, category filters and editing) and recipe entry (photo, tags, pasted ingredient lists, steps with timers, macros → calories); basic recipe page. |
 | 2026-11-15 | 0.1.1 | From first test: ✦ button evenly spaced; Quick add opens on the current screen's type; themes renamed Light/Dark with a sun in Light; "+ New event" button on Calendar; events understand time ranges ("4 to 6pm") and names; fixed weekly chores showing a day early. |
 | 2026-11-15 | 0.1.0 | Phases 1–2: sign-in, offline sync, Lists + shopping trip, Tasks, Quick add, Calendar + event editor, Today, Settings, Cozi/.ics import, push reminders, deploy and setup scripts. |

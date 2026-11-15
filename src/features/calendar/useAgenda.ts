@@ -107,7 +107,7 @@ export function useAgenda(from: Date, days: number) {
         sort: 18 * 60 - 1,
         color: 'var(--teal)',
         owner: '',
-        to: m.recipe ? `/recipes/${m.recipe}` : '/meals',
+        to: m.recipe ? `/recipes/${m.recipe}?a=${m.adults ?? 2}&k=${m.kids ?? 1}&pa=${m.prep_adult || 0}&pk=${m.prep_kid || 0}` : `/meals?d=${m.date}`,
         start: d,
       });
     }

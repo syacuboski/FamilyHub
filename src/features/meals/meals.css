@@ -1,0 +1,42 @@
+.week-head { display: flex; align-items: center; gap: 8px; }
+.chip.round { width: 40px; height: 40px; padding: 0; font-size: 18px; }
+.day-chips { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin: 0 -6px; }
+.day-chips .day-chip { min-height: 50px; padding: 6px 0; justify-content: center; gap: 2px; }
+.day-chips .day-chip.past { opacity: 0.6; }
+
+.deck { position: relative; height: 372px; touch-action: pan-y; user-select: none; }
+.day-card {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 344px;
+  padding: 16px;
+  border-radius: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transform-origin: center bottom;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  box-shadow: var(--glass-inset), var(--shadow);
+}
+.day-card:not(.front) { pointer-events: none; }
+.slot {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 62px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--glass-border);
+  background: var(--gold-wash);
+  color: var(--text);
+  text-align: left;
+}
+[data-theme='night'] .slot { background: rgba(255, 255, 255, 0.06); }
+.slot.empty { background: transparent; border-style: dashed; }
+.slot-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.slot-dish { font-size: 15px; }
+.slot-dish.link { color: var(--link); }
+.slot-note { font-size: 13px; color: var(--teal); }
+
+/* leave room for the ✦ button beside the main action (as in the mockup) */
+.meals-action { padding-right: 76px; }

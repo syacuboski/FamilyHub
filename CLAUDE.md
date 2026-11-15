@@ -24,7 +24,9 @@ home server and reachable only over Tailscale. See README.md for everything oper
 `npm run test:api` / `test:push` (need `npm run pb` + seeded data) for rules or the push worker.
 
 ## Phase status
-Phases 1–2 done (Lists, Tasks, Quick add, Calendar, Today, Settings, imports, push).
-Phase 3: Our Cookbook + recipe entry + basic recipe page done (Checkpoint B = user enters real recipes).
-Still to do in Phase 3: portion scaler on the recipe page, cook mode, prep labels, weekly Meals menu.
-Phase 4 (Inventory) is a placeholder (`src/shared/ComingNext.tsx`); its schema and seed data exist.
+Phases 1–3 done (Lists, Tasks, Quick add, Calendar, Today, Settings, imports, push,
+Cookbook, recipe entry, scaler, cook mode, prep labels, Meals week).
+Phase 4 (Inventory screen) is a placeholder (`src/shared/ComingNext.tsx`); its schema and seed data
+exist, and trips/prep labels already write to `inventory`.
+A real family recipe lives in the local dev DB; it's backed up at `.pb/exports/pumpkin-sausage-soup.json`
+(restore: `node scripts/recipes-io.mjs import .pb/exports/pumpkin-sausage-soup.json`).

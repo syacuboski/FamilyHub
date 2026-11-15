@@ -73,7 +73,7 @@ export function QuickAdd() {
       {kind === 'item' && <ItemForm onReady={setSaveFn} defaultList={fromList} />}
       {kind === 'task' && <TaskForm onReady={setSaveFn} />}
       {kind === 'event' && <EventForm onReady={setSaveFn} defaultDate={fromDay} />}
-      {kind === 'meal' && <MealForm onReady={setSaveFn} />}
+      {kind === 'meal' && <MealForm onReady={setSaveFn} defaultDate={fromDay} />}
     </Sheet>
   );
 }
@@ -260,12 +260,12 @@ const fmt12 = (t: string) => {
 };
 
 // ---------- meal ----------
-function MealForm({ onReady }: { onReady: Ready }) {
+function MealForm({ onReady, defaultDate = '' }: { onReady: Ready; defaultDate?: string }) {
   const recipes = useRecords('recipes');
   const sortedRecipes = useMemo(() => (recipes || []).slice().sort((a, b) => a.title.localeCompare(b.title)), [recipes]);
   const [choice, setChoice] = useState('');
   const [desc, setDesc] = useState('');
-  const [date, setDate] = useState(ymd(today()));
+  const [date, setDate] = useState(defaultDate || ymd(today()));
   const [slot, setSlot] = useState<Slot>('dinner');
   const [adults, setAdults] = useState(2);
   const [kids, setKids] = useState(1);

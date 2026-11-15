@@ -64,3 +64,21 @@ export function additionsFor(needs: Need[], listRows: ListItem[]): ListAddition[
   }
   return out;
 }
+
+/**
+ * Combine needs from several meals: the same ingredient in the same unit adds
+ * up ("1 lb beef" + "2 lb beef" = 3 lb); it counts as in stock only if every
+ * meal found it in stock.
+ */
+export function mergeNeeds(lists: Need[][]): Need[] {
+  const out = new Map<string, Need>();
+  for (const needs of lists) {
+    for (const n of needs) {
+      const k = `${n.item || key(n.name)}|${n.unit}`;
+      const cur = out.get(k);
+      if (cur) out.set(k, { ...cur, qty: cur.qty + n.qty, inStock: cur.inStock && n.inStock });
+      else out.set(k, { ...n });
+    }
+  }
+  return [...out.values()];
+}

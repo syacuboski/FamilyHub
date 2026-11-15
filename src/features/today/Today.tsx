@@ -106,7 +106,7 @@ export function Today() {
         {dinner ? (
           <>
             <h2 className="display" style={{ fontSize: 23, lineHeight: 1.15 }}>
-              {dinnerRecipe ? <Link to={`/recipes/${dinnerRecipe.id}`}>{dinnerRecipe.title} ›</Link> : recipeTitle(dinner)}
+              {dinnerRecipe ? <Link to={`/recipes/${dinnerRecipe.id}?a=${dinner.adults ?? 2}&k=${dinner.kids ?? 1}&pa=${dinner.prep_adult || 0}&pk=${dinner.prep_kid || 0}`}>{dinnerRecipe.title} ›</Link> : recipeTitle(dinner)}
             </h2>
             {dinner.note && !dinnerRecipe && <p className="small muted" style={{ margin: 0 }}>{dinner.note}</p>}
             {dinnerRecipe && (
