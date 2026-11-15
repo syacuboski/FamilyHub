@@ -160,7 +160,7 @@ ssh -T github-familyhub
 ### Step 3: download the code
 
 ```bash
-git clone git@github-familyhub:<github-user>/<repo>.git ~/familyhub
+git clone git@github-familyhub:syacuboski/familyhub.git ~/familyhub
 ```
 ✓ A `~/familyhub` folder with this README in it.
 
