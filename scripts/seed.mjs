@@ -51,8 +51,29 @@ async function gatherConfig() {
   console.log('\nFamily Hub setup\n================');
   console.log(`PocketBase: ${PB_URL}\n`);
   console.log('1) Sign in with the PocketBase superuser (admin) account.');
-  const suEmail = await ask('  Superuser email:');
-  const suPassword = await ask('  Superuser password:', { hidden: true });
+  // check the admin login right away, so a typo doesn't waste everything typed after it
+  let suEmail = '';
+  let suPassword = '';
+  for (let tries = 1; ; tries++) {
+    suEmail = await ask('  Superuser email:');
+    suPassword = await ask('  Superuser password:', { hidden: true });
+    try {
+      await pb.collection('_superusers').authWithPassword(suEmail, suPassword);
+      console.log('  ✓ Signed in');
+      break;
+    } catch (e) {
+      if (e?.status === 0) {
+        console.log(`\n  Can't reach PocketBase at ${PB_URL}. Is it running? (systemctl status pocketbase)`);
+        process.exit(1);
+      }
+      console.log("  That admin email and password didn't work. Use the PocketBase admin login (the one for /_/).");
+      if (tries >= 3) {
+        console.log('\n  To set a new admin password, run (keep the leading space so it stays out of your history):');
+        console.log("   cd /opt/pocketbase && ./pocketbase superuser upsert <email> '<new password>'\n");
+        process.exit(1);
+      }
+    }
+  }
   console.log('\n2) Household');
   const household = await ask('  Household name:', { def: 'Our family' });
   const n = Number(await ask('  How many grown-up accounts to create?', { def: '2' })) || 2;
@@ -82,7 +103,7 @@ async function ensure(col, filter, data) {
 
 // ---------- main ----------
 const cfg = await gatherConfig();
-await pb.collection('_superusers').authWithPassword(cfg.superuser.email, cfg.superuser.password);
+if (!pb.authStore.isValid) await pb.collection('_superusers').authWithPassword(cfg.superuser.email, cfg.superuser.password);
 
 let house = await firstOrNull('households', `name = ${q(cfg.household)}`);
 if (!house) house = await pb.collection('households').create({ name: cfg.household, timezone: 'America/New_York' });
