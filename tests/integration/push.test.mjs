@@ -22,9 +22,9 @@ function selfSigned() {
   return { key: readFileSync(key), cert: readFileSync(cert) };
 }
 
-function runWorker(env) {
+function runWorker(env, extra = []) {
   return new Promise((resolve) => {
-    const c = spawn(process.execPath, ['push-worker/worker.mjs', '--once'], { env });
+    const c = spawn(process.execPath, ['push-worker/worker.mjs', '--once', ...extra], { env });
     let out = '';
     c.stdout.on('data', (d) => (out += d));
     c.stderr.on('data', (d) => (out += d));
@@ -85,6 +85,48 @@ test('a task due now is pushed once to the assignee’s phone', async () => {
   } finally {
     await pb.collection('tasks').delete(task.id).catch(() => {});
     await pb.collection('push_subscriptions').delete(sub.id).catch(() => {});
+    srv.close();
+  }
+});
+
+test('food expiring tomorrow is announced once at 9 AM to the household', async () => {
+  const hits = [];
+  const srv = createServer(selfSigned(), (req, res) => {
+    req.on('data', () => {});
+    req.on('end', () => { hits.push(req.url); res.writeHead(201).end(); });
+  }).listen(0, '127.0.0.1');
+  await new Promise((r) => srv.once('listening', r));
+  const port = srv.address().port;
+  const pb = new PocketBase(PB_URL);
+  await pb.collection('_superusers').authWithPassword(SU.email, SU.password);
+  const mom = await pb.collection('users').getFirstListItem('email = "mom@familyhub.test"');
+  const ecdh = createECDH('prime256v1');
+  ecdh.generateKeys();
+  const sub = await pb.collection('push_subscriptions').create({
+    user: mom.id, household: mom.household, endpoint: `https://127.0.0.1:${port}/push/exp${Date.now()}`,
+    p256dh: ecdh.getPublicKey().toString('base64url'), auth: randomBytes(16).toString('base64url'),
+  });
+  // a day far in the future so real data and earlier runs can't interfere
+  const day = new Date(2031, 2, 10), tomorrow = new Date(2031, 2, 11);
+  const pad = (n) => String(n).padStart(2, '0');
+  const ymd = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const inv = await pb.collection('inventory').create({ household: mom.household, name: 'Test yogurt', location: 'fridge', qty: 1, expires_on: ymd(tomorrow) });
+  const keys = execFileSync(process.execPath, ['push-worker/worker.mjs', '--keys'], { encoding: 'utf8' });
+  const env = { ...process.env, PB_URL, PB_SUPERUSER_EMAIL: SU.email, PB_SUPERUSER_PASSWORD: SU.password, VAPID_SUBJECT: 'https://familyhub.invalid', NODE_TLS_REJECT_UNAUTHORIZED: '0' };
+  for (const line of keys.trim().split('\n')) { const i = line.indexOf('='); env[line.slice(0, i)] = line.slice(i + 1); }
+  try {
+    const early = await runWorker(env, ['--at', `${ymd(day)}T08:30:00`]);
+    assert.equal(hits.length, 0, 'nothing before 9 AM: ' + early);
+    const nine = await runWorker(env, ['--at', `${ymd(day)}T09:01:00`]);
+    assert.match(nine, /sent [1-9]/, nine);
+    assert.equal(hits.length, 1);
+    await runWorker(env, ['--at', `${ymd(day)}T09:03:00`]);
+    assert.equal(hits.length, 1, 'only once a day');
+  } finally {
+    await pb.collection('inventory').delete(inv.id).catch(() => {});
+    await pb.collection('push_subscriptions').delete(sub.id).catch(() => {});
+    const logs = await pb.collection('reminder_log').getFullList({ filter: `key ~ "${ymd(day)}"` });
+    for (const l of logs) await pb.collection('reminder_log').delete(l.id).catch(() => {});
     srv.close();
   }
 });

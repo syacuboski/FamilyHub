@@ -6,7 +6,7 @@
 // the `reminder_log` collection so it is never sent twice.
 //
 //   node worker.mjs            run forever (systemd: familyhub-push.service)
-//   node worker.mjs --once     one pass, then exit (handy for testing)
+//   node worker.mjs --once     one pass, then exit (handy for testing; add --at <local time> to pretend)
 //   node worker.mjs --keys     print a new VAPID key pair for /opt/pocketbase/.env.push
 //   node worker.mjs --test <email>   send a test notification to that person's phones
 //
@@ -148,6 +148,30 @@ export async function tick(now = new Date()) {
     await remember(key);
     count += n;
   }
+  // Food to use up: one note per household at 9:00 AM for anything expiring today or tomorrow
+  const [y9, m9, d9] = today.split('-').map(Number);
+  const nineAm = new Date(y9, m9 - 1, d9, 9, 0);
+  if (nineAm <= now && nineAm >= windowStart) {
+    const tomorrow = ymd(new Date(y9, m9 - 1, d9 + 1));
+    const expiring = await pb.collection('inventory').getFullList({ filter: pb.filter('qty > 0 && expires_on != "" && expires_on <= {:t}', { t: tomorrow }) });
+    const byHouse = new Map();
+    for (const i of expiring) {
+      if (!byHouse.has(i.household)) byHouse.set(i.household, []);
+      byHouse.get(i.household).push(`${i.name} (${i.expires_on < today ? 'expired' : i.expires_on === today ? 'today' : 'tomorrow'})`);
+    }
+    for (const [household, names] of byHouse) {
+      const key = `exp:${household}:${today}`;
+      if (await already(key)) continue;
+      const n = await send(await subsFor(household, ''), {
+        title: names.length === 1 ? 'Use it up' : `Use up ${names.length} things`,
+        body: names.slice(0, 5).join(', ') + (names.length > 5 ? '…' : ''),
+        url: '/home/inventory?loc=fridge',
+        tag: key,
+      });
+      await remember(key);
+      count += n;
+    }
+  }
   return count;
 }
 
@@ -166,7 +190,9 @@ if (args[0] === '--test') {
 }
 
 if (args[0] === '--once') {
-  const n = await tick();
+  // --once --at 2026-11-16T09:01  runs the pass as if it were that local time (for testing)
+  const at = args.indexOf('--at') > 0 ? new Date(args[args.indexOf('--at') + 1]) : new Date();
+  const n = await tick(at);
   console.log(`[push] sent ${n}`);
   process.exit(0);
 }

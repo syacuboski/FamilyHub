@@ -1,0 +1,55 @@
+.loc-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 4px; }
+.loc-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  border-radius: 14px;
+  color: var(--text);
+  font-size: 13px;
+}
+.loc-tab.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.loc-sub { font-size: 10.5px; color: var(--teal); font-weight: 400; }
+.loc-sub.low { color: var(--warn); }
+.loc-tab.on .loc-sub { color: var(--accent-ink); }
+
+.checked-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 16px;
+  color: var(--text);
+  font-size: 13px;
+  text-align: left;
+}
+.checked-bar svg { color: var(--link); }
+
+.inv-card { padding: 4px 12px 12px; gap: 0; }
+.inv-row { display: flex; align-items: center; gap: 10px; min-height: 62px; border-bottom: 1px solid var(--hairline); }
+.inv-open { flex: 1; min-width: 0; display: flex; border: none; background: none; padding: 8px 0; color: var(--text); text-align: left; }
+.inv-name { font-size: 15px; }
+.bar { height: 5px; border-radius: 3px; background: var(--hairline); }
+.bar > div { height: 5px; border-radius: 3px; background: var(--teal); transition: width 0.2s ease; }
+.bar > div.low { background: var(--warn); }
+.lowtxt { color: var(--warn); }
+.out { color: var(--danger); }
+.inv-qty { min-width: 64px; text-align: right; font-size: 15px; font-weight: 600; line-height: 1.1; }
+.inv-x {
+  width: 32px; height: 32px; flex: 0 0 32px; border: none; border-radius: 50%;
+  background: var(--danger-bg); color: var(--danger); font-size: 18px; line-height: 1;
+}
+.inv-count { display: flex; align-items: center; gap: 4px; }
+.inv-count button {
+  width: 34px; height: 34px; border-radius: 999px; border: 1px solid var(--glass-border);
+  background: var(--glass); color: var(--text); font-size: 18px;
+}
+.inv-count .q { width: 46px; text-align: center; font-size: 15px; font-weight: 600; line-height: 1.1; }
+.inv-count .ok { font-size: 15px; color: var(--muted); margin-left: 2px; }
+.inv-count .ok.on { background: var(--teal); border-color: var(--teal); color: var(--accent-ink); }
+
+.bag-row { display: flex; align-items: center; gap: 10px; min-height: 42px; }
+.bag-main { display: flex; align-items: center; gap: 12px; font-size: 15px; }
+.restock { background: none; cursor: pointer; }

@@ -14,6 +14,7 @@ import { useAgenda } from '../calendar/useAgenda';
 import type { MenuEntry, Slot } from '../../lib/types';
 import '../calendar/calendar.css';
 import './today.css';
+import { needsRestock, restockQty } from '../../lib/inventory';
 
 
 export function Today() {
@@ -47,7 +48,7 @@ export function Today() {
   const missingNotListed = missing.filter((n) => !alreadyListed(n.name));
 
   const due = (tasks || []).filter((t) => !t.done && t.due && t.due <= key).sort((a, b) => a.due.localeCompare(b.due)).slice(0, 6);
-  const low = (inventory || []).filter((i) => i.qty <= i.low && (i.low > 0 || i.qty === 0)).slice(0, 6);
+  const low = (inventory || []).filter(needsRestock).slice(0, 6);
   const expiring = (inventory || []).filter((i) => i.expires_on && daysBetween(t0, parseYmd(i.expires_on)) <= 3 && i.qty > 0).sort((a, b) => a.expires_on!.localeCompare(b.expires_on!));
 
   const summary = [
@@ -62,7 +63,8 @@ export function Today() {
   async function addLow(name: string) {
     const list = await defaultList();
     if (!list) return;
-    await addToList(list.id, { name, qty: 1, source: 'Running low' });
+    const stock = (inventory || []).find((i) => i.name === name);
+    await addToList(list.id, { name, qty: stock ? restockQty(stock) : 1, unit: stock && stock.unit !== 'left' ? stock.unit : '', item: stock?.item, source: 'Running low' });
     toast({ text: `Added ${name} to ${list.name}` });
   }
 

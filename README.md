@@ -37,7 +37,7 @@ A private planner for our household: **calendar, shopping lists, weekly menu, re
 | **Recipes** | **Our Cookbook**: search by name or ingredient, category filters you can reorder and hide. **Recipe entry**: photo (shrunk on the phone before upload), portions, prep/cook time, kid portion size, tags (add your own), ingredients (paste a whole list and each line becomes a row; text after a comma is the prep note), steps with optional timers, calories calculated from protein/carbs/fat. | Phase 3 ✓ |
 | **Recipe page** | **Portion scaler**: adults + kids tonight (a kid portion is the recipe's fraction of an adult one) plus extra meal prep portions; every ingredient scales and shows In stock / On list / Need; "Add N missing items to Grocery". **Cook mode**: keeps the screen on, scaled mise-en-place checklist that highlights what the current step uses, swipe between steps, real countdown timers that chime and vibrate (several can run at once). **Meal prep labels**: 4×2 in, 3×2 in or Avery 5160 sheets; prepped and use-by dates, calories and macros (kid labels scaled), reheat note; prints through the phone's print menu and can add the portions to Freezer inventory. | Phase 3 ✓ |
 | **Meals** | Swipeable day cards for the week (Mon–Sun) with breakfast, lunch and dinner. Tap a slot to plan a recipe, leftovers, eating out or anything else, with headcount and meal prep. **Build grocery list for the week** combines every planned recipe from today on, skipping what's in stock or already listed. Past weeks: **Plan this week again**. | Phase 3 ✓ |
-| **Inventory** | Pantry, fridge, freezer and kids' supplies, low-stock alerts, reconcile counts, diaper bag checklist. | Phase 4 |
+| **Inventory** | Pantry, Fridge, Freezer and Kids tabs with how many are low. Stock bars fill toward "full stock"; Low / Out flags; use-by dates that turn orange 3 days out. Tap an item to edit its count, unit, "running low at", full stock, use-by date or location. **Reconcile**: walk a location with − / + / ✓ / × and save; records "last checked". **Add N low items to Grocery** buys back up to full. **Diaper bag** checklist (packed / unpack all / edit list) shows **Restock** when the matching Kids supply is low. Shopping trips and meal prep labels feed stock in automatically. | Phase 4 ✓ |
 
 **How the modules connect** (the reason this is custom-built):
 
@@ -239,6 +239,7 @@ The app stays signed in for 30 days between opens. Each open renews that, so in 
 - sends **event reminders** at the chosen lead time (15 min, 1 hour, 1 day…) to that person's phones, or everyone's for "Family" events;
 - sends **task reminders** on the due day at the task's time (9:00 AM if none) to the assignee, or everyone for "Anyone";
 - records each reminder in `reminder_log` so it is never sent twice, and never sends one more than 5 minutes late (no burst of stale reminders after a reboot);
+- at **9:00 AM** sends one "use it up" note per household listing food that expires today or tomorrow;
 - removes phone subscriptions that have expired.
 
 Settings are in `/opt/pocketbase/.env.push` (created by `server-setup.sh`): `PB_URL`, `PB_SUPERUSER_EMAIL`, `PB_SUPERUSER_PASSWORD`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`. Times use `TZ=America/New_York` (set in the service file).
@@ -299,7 +300,7 @@ The SOP's nightly backups already cover everything (`pb_data`: database and reci
 | Layer | Where | Covers |
 |---|---|---|
 | Unit (`npm test`) | `tests/unit/` | portion scaler, quarter fractions, calorie math, repeats and DST, chore roll-forward, Quick add parsing, ingredient pasting, missing-ingredient diff, `.ics` import, **sync outbox replay** (offline create/update/delete, duplicate-create recovery, refused changes, realtime echoes) |
-| Integration (`npm run test:api`, `test:push`) | `tests/integration/` | household isolation rules; a real encrypted Web Push sent once to a fake push service |
+| Integration (`npm run test:api`, `test:push`) | `tests/integration/` | household isolation rules; a real encrypted Web Push sent once to a fake push service; the 9 AM expiring-food note (fires once, not before 9) |
 | End-to-end (`npm run e2e`) | `tests/e2e/` | sign-in, Today, **live check-off between two phones**, **offline edits syncing on reconnect**, offline navigation, chore roll-forward with Undo, weekly event + skip one date, Quick add parsing, theme switch |
 
 Integration tests need `npm run pb` running with the sample data (section 3). E2E starts its own PocketBase on :8091 with a fresh database, and Vite on :5174.
@@ -326,13 +327,14 @@ Integration tests need `npm run pb` running with the sample data (section 3). E2
 - **Phase 1: Foundation + Lists + Tasks.** ✓ Built. *Gate:* both of you use it instead of Cozi for two weeks.
 - **Phase 2: Calendar + Today.** ✓ Built. **Checkpoint A:** add, edit and repeat a few real events on your phones. *Gate:* decide whether Google two-way sync is needed.
 - **Phase 3: Recipes + Meals.** ✓ Built. Checkpoint B passed (a real family recipe was entered and is used for testing).
-- **Phase 4: Inventory.** Locations, low stock, reconcile, expiry alerts, diaper bag, shopping → stock.
+- **Phase 4: Inventory.** ✓ Built: locations, low stock → Grocery, reconcile, use-by dates and a 9 AM "use it up" reminder, diaper bag, shopping trip → stock, meal prep → Freezer.
 - **Phase 5: Expand.** Google Calendar sync, kid accounts, native app (Capacitor) if push on iOS proves unreliable or widgets/barcode scanning are wanted.
 
 **Changelog**
 
 | Date | Version | Change |
 |---|---|---|
+| 2026-11-15 | 0.4.0 | Phase 4: Inventory screen (locations, stock bars, reconcile, item editor, low → Grocery), diaper bag restock flags, 9 AM expiring-food reminder; cook mode lists each step's ingredients first. |
 | 2026-11-15 | 0.3.0 | Phase 3 complete: portion and meal prep scaler, cook mode with timers, printable prep labels (→ Freezer), weekly Meals menu with "build grocery list for the week"; recipe export/import script. |
 | 2026-11-15 | 0.2.0 | Phase 3 part 1: Our Cookbook (search, category filters and editing) and recipe entry (photo, tags, pasted ingredient lists, steps with timers, macros → calories); basic recipe page. |
 | 2026-11-15 | 0.1.1 | From first test: ✦ button evenly spaced; Quick add opens on the current screen's type; themes renamed Light/Dark with a sun in Light; "+ New event" button on Calendar; events understand time ranges ("4 to 6pm") and names; fixed weekly chores showing a day early. |
