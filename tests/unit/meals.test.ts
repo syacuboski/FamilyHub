@@ -29,6 +29,14 @@ describe('cook mode', () => {
     expect(stepUses('Whisk in flour', 'Garlic')).toBe(false);
     expect(stepUses('Season to taste', 'Italian Seasoning')).toBe(false); // "italian" alone isn't enough; "seasoning" ≠ "season"
     expect(stepUses('Add the potatoes', 'Baby potatoes')).toBe(true);
+    // a cooking verb that is also part of a name must not match
+    expect(stepUses('Brown the sausage, then strain it out', 'Brown sugar')).toBe(false);
+    expect(stepUses('Stir in the brown sugar', 'Brown sugar')).toBe(true);
+    expect(stepUses('Dice the onion', 'Diced tomatoes')).toBe(false);
+    // short food words still count when they are the food
+    expect(stepUses('Heat the oil in a pan', 'Olive oil')).toBe(true);
+    expect(stepUses('Whisk the eggs', 'Large egg')).toBe(true);
+    expect(stepUses('Bring the broth to a boil', 'Stock/Broth')).toBe(true);
   });
   it('shows scaled amounts with sensible units', () => {
     expect(ingredientQty({ qty: 2, unit: 'lb' }, 2.5 / 4)).toBe('1¼ lb');

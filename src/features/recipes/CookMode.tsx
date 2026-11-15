@@ -84,6 +84,11 @@ export function CookMode() {
   const [now, setNow] = useState(Date.now());
   const [dx, setDx] = useState(0);
   const x0 = useRef<number | null>(null);
+  const miseBody = useRef<HTMLDivElement>(null);
+  // new step: its ingredients move to the top, so show the top of the list
+  useEffect(() => {
+    miseBody.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [step]);
 
   useEffect(() => {
     try { sessionStorage.setItem(storeKey, JSON.stringify({ step, done })); } catch { /* ignore */ }
@@ -173,10 +178,13 @@ export function CookMode() {
             <span className="tiny muted">{focus === 'mise' ? 'Show both' : 'Expand ▾'}</span>
           </button>
           <div className="progress"><div style={{ width: `${ings.length ? Math.round((readyCount / ings.length) * 100) : 0}%` }} /></div>
-          <div className="panel-body">
-            {ings.map((i) => {
+          <div className="panel-body" ref={miseBody}>
+            {(() => {
+              // this step's ingredients first (in recipe order), then everything else
+              const forStep = ings.filter((i) => stepUses(cur.text, i.name));
+              const rest = ings.filter((i) => !stepUses(cur.text, i.name));
+              const row = (i: (typeof ings)[number], uses: boolean) => {
               const isDone = !!done[i.id];
-              const uses = stepUses(cur.text, i.name);
               return (
                 <label key={i.id} className={`mise-row${isDone ? ' done' : ''}${uses ? ' now' : ''}`}>
                   <input type="checkbox" checked={isDone} onChange={() => setDone({ ...done, [i.id]: !isDone })} />
@@ -188,7 +196,16 @@ export function CookMode() {
                   {uses && <span className="tiny" style={{ color: 'var(--link)' }}>Step {step + 1}</span>}
                 </label>
               );
-            })}
+              };
+              return (
+                <>
+                  {forStep.length > 0 && <p className="mise-group">For step {step + 1}</p>}
+                  {forStep.map((i) => row(i, true))}
+                  {forStep.length > 0 && rest.length > 0 && <p className="mise-group">Everything else</p>}
+                  {rest.map((i) => row(i, false))}
+                </>
+              );
+            })()}
           </div>
         </section>
 

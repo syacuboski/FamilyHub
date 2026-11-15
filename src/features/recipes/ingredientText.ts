@@ -15,16 +15,25 @@ export function ingredientQty(i: Pick<RecipeIngredient, 'qty' | 'unit'>, factor 
   return `${amount} ${unit}`;
 }
 
+// Words that describe an ingredient (or double as cooking verbs) rather than name it:
+// "Brown the sausage" must not match "brown sugar", "dice the onion" not "diced tomatoes".
+const NOT_THE_FOOD = new Set([
+  'fresh', 'dried', 'ground', 'large', 'small', 'medium', 'italian', 'chopped', 'whole', 'extra', 'virgin', 'light', 'heavy',
+  'brown', 'white', 'black', 'green', 'yellow', 'golden', 'sweet', 'salted', 'unsalted', 'frozen', 'canned', 'diced', 'sliced',
+  'minced', 'shredded', 'grated', 'toasted', 'roasted', 'smoked', 'boneless', 'skinless', 'baby', 'plain', 'low', 'sodium',
+  'reduced', 'fat', 'free', 'organic', 'raw', 'cooked', 'softened', 'melted', 'packed', 'fine', 'coarse', 'kosher',
+]);
+
+const words = (s: string) => s.toLowerCase().replace(/[^a-z\s]/g, ' ').split(/\s+/).filter(Boolean);
+
 /** Does this step mention this ingredient? ("Brown the sausage" ↔ "Italian venison sausage") */
 export function stepUses(step: string, ingredientName: string): boolean {
-  const text = ` ${step.toLowerCase().replace(/[^a-z\s]/g, ' ')} `;
-  const words = ingredientName
-    .toLowerCase()
-    .replace(/[^a-z\s]/g, ' ')
-    .split(/\s+/)
-    .filter((w) => w.length >= 4 && !['fresh', 'dried', 'ground', 'large', 'small', 'medium', 'italian', 'chopped', 'whole', 'extra', 'virgin', 'light', 'heavy'].includes(w));
-  return words.some((w) => {
+  const text = ` ${words(step).join(' ')} `;
+  const name = words(ingredientName);
+  // the food words of the name; the last word ("sugar", "oil") counts even when short
+  const food = name.filter((w, i) => !NOT_THE_FOOD.has(w) && (w.length >= 4 || (i === name.length - 1 && w.length >= 3)));
+  return food.some((w) => {
     const stem = w.replace(/(es|s)$/, '');
-    return text.includes(` ${w} `) || text.includes(` ${stem} `) || text.includes(` ${stem}s `) || text.includes(` ${stem}es `);
+    return [w, stem, `${stem}s`, `${stem}es`].some((f) => f.length >= 3 && text.includes(` ${f} `));
   });
 }

@@ -87,6 +87,9 @@ test('the scaler, cook mode and prep labels follow the same plan', async ({ page
   await expect(page.locator('.mise-row', { hasText: 'Chicken thighs' })).toContainText('3¼ lb');
   await page.getByRole('button', { name: 'Step 2 ›' }).click();
   await expect(page.locator('.mise-row.now', { hasText: 'Baby potatoes' })).toBeVisible();
+  // this step's ingredients are listed first
+  await expect(page.locator('.cook .panel-body .mise-group').first()).toHaveText('For step 2');
+  await expect(page.locator('.cook .panel-body .mise-row').first()).toHaveClass(/now/);
   await page.getByRole('button', { name: 'Start 15:00 timer' }).click();
   await expect(page.getByRole('button', { name: /14:5\d left/ })).toBeVisible();
   await page.locator('.mise-row', { hasText: 'Garlic' }).getByRole('checkbox').check();
