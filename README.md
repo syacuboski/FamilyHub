@@ -34,7 +34,8 @@ A private planner for our household: **calendar, shopping lists, weekly menu, re
 | **Lists** | Several lists (Grocery, Costco, Hardware…), grouped by category, live check-off between phones, "Milk 2 gal" understood, offline. **Shopping trip** mode with big tap targets that learns your store's aisle order; finishing a trip restocks Inventory. | Phase 1 ✓ |
 | **Tasks** | One-off and repeating chores, who it's for, due date and time, reminders. Ticking a repeating chore rolls it to its next date (with Undo). | Phase 1 ✓ |
 | **Quick add** (✦ button) | Add a list item, task, event or meal from any screen. It opens on what fits the screen you are on (Calendar → event, Tasks → task, Meals → meal, a list → that list). Events understand plain words: "Soccer for Mom Sat 4 to 6pm" fills in the day, 4:00–6:00 PM and Mom. | Phase 1–2 ✓ |
-| **Recipes + Meals** | Cookbook, recipe entry with photo, adult/kid portion scaler, meal prep portions, cook mode, prep labels, weekly menu, "add missing ingredients to Grocery". | Phase 3, next |
+| **Recipes** | **Our Cookbook**: search by name or ingredient, category filters you can reorder and hide. **Recipe entry**: photo (shrunk on the phone before upload), portions, prep/cook time, kid portion size, tags (add your own), ingredients (paste a whole list and each line becomes a row; text after a comma is the prep note), steps with optional timers, calories calculated from protein/carbs/fat. | Phase 3 · entry ✓ (Checkpoint B) |
+| **Meals** | Portion scaler (adults + kids + meal prep), cook mode, prep labels, weekly menu, "add missing ingredients to Grocery". | Phase 3, after Checkpoint B |
 | **Inventory** | Pantry, fridge, freezer and kids' supplies, low-stock alerts, reconcile counts, diaper bag checklist. | Phase 4 |
 
 **How the modules connect** (the reason this is custom-built):
@@ -119,6 +120,8 @@ Useful commands:
 | `npm run e2e` | Playwright end-to-end tests (starts its own throwaway PocketBase) |
 | `npm run test:all` | Everything above, in order |
 | `npm run icons` | Re-render app icons from `public/icons/icon.svg` |
+
+**Recipe photos** need a connection: the recipe text saves offline like everything else, but the photo uploads straight to the server. If you're offline the app says so and you can add the photo later.
 
 **Changing the database schema:** never edit a migration that has already run on the server. Add a new file in `pb_migrations/` (`./.pb/pocketbase migrate create <name> --migrationsDir=pb_migrations` makes one), and test it with `npm run pb`. Deploying applies it automatically.
 
@@ -319,7 +322,7 @@ Integration tests need `npm run pb` running with the sample data (section 3). E2
 
 - **Phase 1: Foundation + Lists + Tasks.** ✓ Built. *Gate:* both of you use it instead of Cozi for two weeks.
 - **Phase 2: Calendar + Today.** ✓ Built. **Checkpoint A:** add, edit and repeat a few real events on your phones. *Gate:* decide whether Google two-way sync is needed.
-- **Phase 3: Recipes + Meals.** Next. **Checkpoint B:** enter one or two real recipes with photos before the menu, scaler and labels are finished.
+- **Phase 3: Recipes + Meals.** Recipe entry and Our Cookbook ✓. **Checkpoint B:** enter one or two real recipes with photos. Then: portion scaler, cook mode, prep labels and the weekly menu.
 - **Phase 4: Inventory.** Locations, low stock, reconcile, expiry alerts, diaper bag, shopping → stock.
 - **Phase 5: Expand.** Google Calendar sync, kid accounts, native app (Capacitor) if push on iOS proves unreliable or widgets/barcode scanning are wanted.
 
@@ -327,5 +330,6 @@ Integration tests need `npm run pb` running with the sample data (section 3). E2
 
 | Date | Version | Change |
 |---|---|---|
+| 2026-11-15 | 0.2.0 | Phase 3 part 1: Our Cookbook (search, category filters and editing) and recipe entry (photo, tags, pasted ingredient lists, steps with timers, macros → calories); basic recipe page. |
 | 2026-11-15 | 0.1.1 | From first test: ✦ button evenly spaced; Quick add opens on the current screen's type; themes renamed Light/Dark with a sun in Light; "+ New event" button on Calendar; events understand time ranges ("4 to 6pm") and names; fixed weekly chores showing a day early. |
 | 2026-11-15 | 0.1.0 | Phases 1–2: sign-in, offline sync, Lists + shopping trip, Tasks, Quick add, Calendar + event editor, Today, Settings, Cozi/.ics import, push reminders, deploy and setup scripts. |

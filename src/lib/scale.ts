@@ -60,3 +60,10 @@ export function parseQty(s: string): number {
   if (m) return Number(m[2]);
   return NaN;
 }
+
+/** 170 → "2 hr 50 min", 45 → "45 min", 60 → "1 hr" */
+export function fmtMinutes(m: number): string {
+  if (!m) return '';
+  if (m < 60) return `${m} min`;
+  return `${Math.floor(m / 60)} hr${m % 60 ? ` ${m % 60} min` : ''}`;
+}

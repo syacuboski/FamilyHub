@@ -25,5 +25,6 @@ home server and reachable only over Tailscale. See README.md for everything oper
 
 ## Phase status
 Phases 1–2 done (Lists, Tasks, Quick add, Calendar, Today, Settings, imports, push).
-Phase 3 (Recipes + Meals) and Phase 4 (Inventory) screens are placeholders
-(`src/shared/ComingNext.tsx`); the schema and seed data for them already exist.
+Phase 3: Our Cookbook + recipe entry + basic recipe page done (Checkpoint B = user enters real recipes).
+Still to do in Phase 3: portion scaler on the recipe page, cook mode, prep labels, weekly Meals menu.
+Phase 4 (Inventory) is a placeholder (`src/shared/ComingNext.tsx`); its schema and seed data exist.
