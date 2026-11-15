@@ -1,0 +1,5 @@
+.today-head { display: flex; flex-direction: column; gap: 6px; padding-top: 8px; }
+.icon-link { color: var(--muted); display: flex; width: 40px; height: 40px; align-items: center; justify-content: center; border-radius: 50%; }
+.meal-line { display: flex; align-items: center; gap: 12px; min-height: 38px; border-bottom: 1px solid var(--line); font-size: 15px; }
+.meal-line .slot { width: 76px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.tag { border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; font-size: 13px; }

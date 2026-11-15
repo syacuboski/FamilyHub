@@ -1,0 +1,53 @@
+.add-bar { display: flex; gap: 8px; }
+.add-bar .input { flex: 1; min-width: 0; }
+.chip-dashed { border-style: dashed; background: transparent; color: var(--accent-hi); width: 40px; padding: 0; }
+
+.list-group { display: flex; flex-direction: column; gap: 2px; }
+.list-group > .label { margin-bottom: 4px; }
+
+.list-row { gap: 10px; font-size: 15px; }
+.list-row-main { display: flex; align-items: center; gap: 12px; min-height: 46px; }
+.list-row .qty { min-width: 36px; text-align: right; color: var(--muted); font-size: 13px; }
+.list-row.done { color: var(--faint); }
+.list-row.done .name { text-decoration: line-through; }
+.list-row.pending .name::after { content: ' •'; color: var(--warn); }
+.row-del {
+  border: none;
+  background: none;
+  color: var(--faint);
+  width: 32px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+}
+.row-del:hover { color: var(--danger); opacity: 1; }
+
+/* manage lists */
+.manage-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 16px; border: 1px solid var(--line); }
+.manage-row.default { border-color: var(--gold-line); }
+.manage-row .moves { display: flex; flex-direction: column; gap: 2px; }
+.manage-row .moves button { border: none; background: none; color: var(--muted); font-size: 11px; height: 20px; width: 28px; padding: 0; }
+.manage-row .moves button:disabled { color: var(--line); opacity: 1; }
+.manage-row .swatch { width: 10px; height: 34px; border-radius: 4px; flex: 0 0 auto; }
+.manage-row input.input { min-height: 38px; }
+
+/* shopping trip */
+.trip-progress { height: 8px; border-radius: 4px; background: var(--line); }
+.trip-progress > div { height: 8px; border-radius: 4px; background: var(--accent); transition: width 0.2s ease; }
+.trip-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 0 14px;
+  border-radius: 14px;
+  background: var(--card);
+  margin-bottom: 6px;
+  font-size: 16px;
+}
+.trip-row.done { background: transparent; color: var(--faint); }
+.trip-row.done .name { text-decoration: line-through; }
+.trip-row input[type='checkbox'] { width: 24px; height: 24px; }
+.trip-foot { padding: 10px 18px calc(18px + var(--safe-bottom)); display: flex; gap: 10px; }

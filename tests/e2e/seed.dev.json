@@ -1,0 +1,8 @@
+{
+  "superuser": { "email": "admin@familyhub.test", "password": "dev-admin-pass-123" },
+  "household": "Test household",
+  "users": [
+    { "name": "Dad", "email": "dad@familyhub.test", "password": "dev-dad-pass-123", "color": "#D9B36C", "role": "admin" },
+    { "name": "Mom", "email": "mom@familyhub.test", "password": "dev-mom-pass-123", "color": "#9C8BD6", "role": "adult" }
+  ]
+}

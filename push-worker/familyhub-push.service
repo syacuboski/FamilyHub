@@ -1,0 +1,19 @@
+# Family Hub push reminders. Installed by scripts/server-setup.sh, which
+# replaces __USER__ and __APP_DIR__ with your server user and repo folder.
+[Unit]
+Description=Family Hub push reminders
+After=network-online.target pocketbase.service
+Wants=pocketbase.service
+
+[Service]
+Type=simple
+User=__USER__
+WorkingDirectory=__APP_DIR__/push-worker
+EnvironmentFile=/opt/pocketbase/.env.push
+Environment=TZ=America/New_York
+ExecStart=/usr/bin/env node worker.mjs
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,81 @@
+/* Starlight design tokens, lifted from the Family Hub mockups.
+   Night Court (after sunset) is the default; Day Court is the light theme. */
+
+:root,
+[data-theme='night'] {
+  color-scheme: dark;
+  --bg: #0e1330;
+  --text: #ece8dd;
+  --muted: #a9aecb;
+  --faint: #6f7598;
+  --accent: #d9b36c;      /* gold: primary buttons, links, active tab */
+  --accent-hi: #ecd39e;   /* gold text on glass */
+  --accent-ink: #0e1330;  /* text on gold */
+  --link: #d9b36c;
+  --accent-glow: rgba(217, 179, 108, 0.18);
+  --gold-line: #5a4c2e;
+  --gold-wash: rgba(217, 179, 108, 0.12);
+  --glass: rgba(42, 50, 102, 0.42);
+  --glass-border: rgba(255, 255, 255, 0.16);
+  --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --hairline: rgba(255, 255, 255, 0.09);
+  --line: #2a3266;
+  --line-soft: #1e2550;
+  --card: #171d42;
+  --field: rgba(14, 19, 48, 0.7);
+  --nav-bg: rgba(10, 14, 38, 0.72);
+  --teal: #7fc4c9;
+  --violet: #9c8bd6;
+  --warn: #e9a27c;
+  --warn-line: #6a3e2a;
+  --danger: #f2b5a4;
+  --danger-bg: #4a2230;
+  --shadow: 0 14px 30px rgba(3, 6, 20, 0.45);
+  --fab-shadow: 0 0 0 5px rgba(217, 179, 108, 0.18), 0 8px 18px rgba(3, 6, 20, 0.45);
+  --art-moon-cut: #0e1330;
+}
+
+[data-theme='day'] {
+  color-scheme: light;
+  --bg: #f6f1e7;
+  --text: #1b1f3b;
+  --muted: #5a5f7e;
+  --faint: #8a8ea8;
+  --accent: #c9a24e;
+  --accent-hi: #8a6420;
+  --accent-ink: #1b1f3b;
+  --link: #8a6420;
+  --accent-glow: rgba(201, 162, 78, 0.22);
+  --gold-line: #d9c18e;
+  --gold-wash: rgba(201, 162, 78, 0.14);
+  --glass: rgba(255, 253, 248, 0.62);
+  --glass-border: rgba(27, 31, 59, 0.12);
+  --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  --hairline: rgba(27, 31, 59, 0.07);
+  --line: #e2d8c6;
+  --line-soft: #ece4d4;
+  --card: #fffdf8;
+  --field: rgba(255, 255, 255, 0.8);
+  --nav-bg: rgba(246, 241, 231, 0.84);
+  --teal: #2f7a80;
+  --violet: #6e5bb0;
+  --warn: #a85a2e;
+  --warn-line: #e7c3a8;
+  --danger: #a2402c;
+  --danger-bg: #f7dcd4;
+  --shadow: 0 14px 30px rgba(70, 52, 20, 0.14);
+  --fab-shadow: 0 0 0 5px rgba(201, 162, 78, 0.22), 0 8px 18px rgba(70, 52, 20, 0.14);
+  --art-moon-cut: #f6f1e7;
+}
+
+:root {
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Jost', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --radius-card: 18px;
+  --radius-chip: 999px;
+  --radius-field: 12px;
+  --blur: blur(18px) saturate(150%);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --nav-h: calc(70px + var(--safe-bottom));
+}

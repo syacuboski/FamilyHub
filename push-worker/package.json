@@ -1,0 +1,17 @@
+{
+  "name": "familyhub-push",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Sends Family Hub task and event reminders as Web Push notifications.",
+  "scripts": {
+    "start": "node worker.mjs",
+    "keys": "node worker.mjs --keys",
+    "test-push": "node worker.mjs --test"
+  },
+  "dependencies": {
+    "pocketbase": "^0.29.0",
+    "rrule": "^2.8.1",
+    "web-push": "^4.0.0"
+  }
+}
